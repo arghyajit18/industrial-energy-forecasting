@@ -41,10 +41,28 @@ def load_models():
     return xgb, lgb
 
 xgb_model, lgb_model = load_models()
+
+def _model_features(model, fallback):
+    for attr in ("feature_names_in_", "feature_names"):
+        try:
+            names = list(getattr(model, attr))
+            if names and all(isinstance(n, str) for n in names):
+                return names
+        except Exception:
+            pass
+    try:
+        names = list(model.get_booster().feature_names)
+        if names:
+            return names
+    except Exception:
+        pass
+    return list(fallback)
+
 try:
-    FORECAST_FEATURES = list(metrics.get("forecast_features", FORECAST_FEATURES))
+    _from_metrics = list(metrics.get("forecast_features", []))
 except Exception:
-    pass
+    _from_metrics = []
+FORECAST_FEATURES = _model_features(xgb_model, _from_metrics or FORECAST_FEATURES)
 
 st.title("Energy Consumption Forecasting — Real Plant Data")
 st.caption("DAEWOO Steel Co., South Korea — 15-min interval, 2018 (UCI/Kaggle Steel Industry Energy Consumption dataset)")
