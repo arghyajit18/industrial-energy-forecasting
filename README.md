@@ -42,33 +42,32 @@ python optimization.py
 streamlit run dashboard/app.py
 ```
 
-## Results
+## Results (real plant data - DAEWOO Steel, 2018, 34,944 readings at 15-min)
 
-| Model | MAE (kWh) | MAPE |
+I ran everything on the real dataset, not the synthetic one. It is a full year of 15-minute meter readings, so you get the actual ups and downs of the plant.
+
+My main model only uses stuff you would know ahead of time - time of day, day of week, and past usage. No cheating with same-time sensor readings.
+
+| Model | MAE | MAPE |
 |---|---|---|
-| Linear Regression (baseline) | 11.5 | 1.25% |
-| XGBoost | 10.9 | 1.20% |
+| Linear Regression | 6.54 kWh | 55.8% |
+| XGBoost | 5.22 kWh | 34.9% |
 
-**Top drivers of energy consumption** (feature importance): production load
-(51%), equipment utilization (21%), day-of-week (17%) — confirming that
-consumption tracks operational load, with a secondary weekday/weekend effect.
+MAPE looks high but that is mostly because usage drops near zero when the plant is idle, so even a small miss looks huge in percent. MAE tells the real story. On average I am off by about 5 kWh against a mean around 27 kWh.
 
-**Equipment-level breakdown** (identification of major energy-consuming
-equipment): total annual consumption is now attributed to 4 named
-sub-systems —
+What mattered most was pretty simple. The last reading (15 mins ago) did most of the work, around 63%. Then same time yesterday, weekend flag, day of week and hour. Makes sense, this kind of load just follows its own recent history.
 
-| Equipment | Share of total |
+Split by load type came out like this:
+
+| Load type | Share |
 |---|---|
-| Furnace | 62.5% |
-| Compressor bank | 25.8% |
-| Auxiliary/misc | 6.4% |
-| Ventilation/cooling | 5.2% |
+| Maximum_Load | 44.9% |
+| Medium_Load | 38.9% |
+| Light_Load | 16.2% |
 
-**Wastage I noticed**: around 796 hours had high power draw even when production was low. A lot of it showed up around shift changes (6-7 AM, 5-7 PM) and on weekends. When I broke it down, about 402 of those hours came from the Auxiliary/misc side, so that is where I would put auto-shutdown first. Back-of-the-envelope saving is close to 84,000 kWh a year, about 1% of the total.
+The part I found most useful was power factor. The plant sits below 90% about 54.8% of the time, which is where penalty billing usually kicks in. Light_Load is the worst - median around 66.2%, and it is under 90% almost 80% of the time. Maximum is around 91.7% and Medium around 96.8%, so they are mostly fine. To me that says put an automatic capacitor bank that kicks in during Light_Load, not a fixed one. A fixed bank would overdo it when load is light.
 
-**Peak demand**: I looked at the top 5% of hours by load (437 hours) and the Furnace was on top every single time. What stood out is the Furnace and Compressor bank both run hot together around 17% of the time, which is way more than you would expect by chance (about 2.7x). That overlap is what seems to push the peaks up.
-
-**What I would try next**: shift compressor starts away from furnace peak windows. It should cut the peaks without hurting output, since the issue looks like timing rather than total load.
+For peaks I took the top 5% of readings (1,749 intervals, over 99.1 kWh). They pile up around 9 AM and on Thursdays. If the tariff has a demand charge, moving non-critical work out of that window should help the bill even if total energy stays the same.
 
 ## Tech stack
 Python, pandas, scikit-learn, XGBoost, LightGBM, Streamlit, Plotly.
