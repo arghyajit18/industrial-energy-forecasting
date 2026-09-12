@@ -9,46 +9,40 @@ import numpy as np
 
 df = pd.read_csv("real_data/clean_steel_industry_data.csv", parse_dates=["timestamp"])
 
-# ============================================================
 # Segment ranking (Load_Type — closest real proxy to "major energy-consuming
 # equipment" since this dataset has no sub-metering)
-# ============================================================
 seg_totals = df.groupby("Load_Type")["Usage_kWh"].sum().sort_values(ascending=False)
 seg_share = (seg_totals / seg_totals.sum() * 100).round(1)
 seg_ranking = pd.DataFrame({"total_kwh": seg_totals.round(0), "share_pct": seg_share})
 seg_ranking.to_csv("real_data/outputs/loadtype_ranking.csv")
 
-# ============================================================
 # Peak demand analysis (top 5% of 15-min readings)
-# ============================================================
 peak_threshold = df["Usage_kWh"].quantile(0.95)
 peaks = df[df["Usage_kWh"] >= peak_threshold].copy()
 peak_by_hour = peaks.groupby("hour").size().sort_values(ascending=False)
 peak_by_dow = peaks.groupby("dayofweek").size().sort_values(ascending=False)
 peaks.to_csv("real_data/outputs/peak_demand_periods.csv", index=False)
 
-# ============================================================
 # Power factor analysis — THE real, actionable finding in this dataset.
 # Indian/most state electricity boards penalize consumers when average power
 # factor drops below ~0.90 (90%), and reward it above ~0.95. Low PF means
 # more reactive current is drawn for the same real power, wasting capacity.
-# ============================================================
 PF_THRESHOLD = 90.0
 low_pf = df[df["Lagging_Current_Power_Factor"] < PF_THRESHOLD]
 low_pf_pct_of_time = len(low_pf) / len(df) * 100
 low_pf_by_loadtype = (df["Lagging_Current_Power_Factor"] < PF_THRESHOLD).groupby(df["Load_Type"]).mean().mul(100).sort_values(ascending=False)
 median_pf_by_loadtype = df.groupby("Load_Type")["Lagging_Current_Power_Factor"].median()
 
-print("=== Load_Type Ranking (annual consumption) ===")
+print("Load type ranking (annual consumption):")
 print(seg_ranking)
 
-print(f"\n=== Peak Demand ===")
+print(f"\nPeak demand:")
 print(f"Peak threshold (95th pct): {peak_threshold:.1f} kWh, {len(peaks)} intervals flagged")
 print(f"Most common peak hour: {peak_by_hour.idxmax()}:00 ({peak_by_hour.iloc[0]} intervals)")
 print(f"Most common peak day: {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][peak_by_dow.idxmax()]} "
       f"({peak_by_dow.iloc[0]} intervals)")
 
-print(f"\n=== Power Factor ===")
+print(f"\nPower factor:")
 print(f"Time spent below {PF_THRESHOLD}% lagging PF: {low_pf_pct_of_time:.1f}% of all readings")
 print("Median lagging PF by Load_Type:")
 print(median_pf_by_loadtype)
@@ -59,8 +53,7 @@ worst_segment = low_pf_by_loadtype.index[0]
 worst_median_pf = median_pf_by_loadtype[worst_segment]
 
 recommendations = f"""
-OPTIMIZATION RECOMMENDATIONS — real data (auto-generated)
-====================================================================
+OPTIMIZATION RECOMMENDATIONS, real data summary
 SEGMENT RANKING (Load_Type — closest real proxy to equipment-level breakdown;
 this dataset has a single main meter with no sub-metering)
 {seg_ranking.to_string()}

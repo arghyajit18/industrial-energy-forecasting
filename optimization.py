@@ -44,9 +44,7 @@ print(wastage_by_hour.head(5))
 print("\nMost common days for wastage:")
 print(wastage_by_dow)
 
-# ============================================================
 # Equipment-level ranking (annual totals + share)
-# ============================================================
 equip_totals = df[EQUIPMENT_COLS].sum().sort_values(ascending=False)
 equip_share = (equip_totals / equip_totals.sum() * 100).round(1)
 equip_ranking = pd.DataFrame({"total_kwh": equip_totals.round(0), "share_pct": equip_share})
@@ -62,9 +60,7 @@ z_df = pd.DataFrame(z_scores)
 wastage_equipment_cause = z_df.idxmax(axis=1).map(EQUIPMENT_NAMES).value_counts()
 top_wastage_equipment = wastage_equipment_cause.index[0]
 
-# ============================================================
 # Peak demand analysis (top 5% of hours by total consumption)
-# ============================================================
 peak_threshold = df["energy_kwh"].quantile(0.95)
 peaks = df[df["energy_kwh"] >= peak_threshold].copy()
 peak_by_hour = peaks.groupby("hour").size().sort_values(ascending=False)
@@ -79,7 +75,7 @@ both_high_pct = (furnace_high & compressor_high).mean() * 100
 expected_if_independent = furnace_high.mean() * compressor_high.mean() * 100
 overlap_ratio = both_high_pct / expected_if_independent if expected_if_independent > 0 else 1
 
-print("\n=== Equipment Ranking (annual consumption) ===")
+print("\nEquipment ranking (annual consumption):")
 print(equip_ranking)
 print(f"\nTop cause of flagged wastage hours: {top_wastage_equipment} "
       f"({wastage_equipment_cause.iloc[0]}/{len(wastage)} hours)")
@@ -90,8 +86,7 @@ print(f"\nFurnace & Compressor both in their own top 25% simultaneously: "
 
 dow_names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 recommendations = f"""
-OPTIMIZATION RECOMMENDATIONS (auto-generated from flagged periods)
-====================================================================
+OPTIMIZATION RECOMMENDATIONS (from flagged periods)
 EQUIPMENT RANKING (major energy-consuming equipment)
 {equip_ranking.to_string()}
 -> {equip_ranking.index[0]} is the single largest consumer ({equip_ranking.iloc[0]['share_pct']}% of total)

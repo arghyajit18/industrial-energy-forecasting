@@ -42,7 +42,7 @@ xgb_model, lgb_model = load_models()
 st.title("Energy Consumption Forecasting & Optimization")
 st.caption("Prototype dashboard — synthetic plant-utility data, XGBoost forecasting model")
 
-# KPI row ---
+# KPI row
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("Model MAPE", f"{metrics['xgboost (grid-tuned)']['MAPE_pct']}%")
 c2.metric("Model MAE", f"{metrics['xgboost (grid-tuned)']['MAE_kWh']} kWh")
@@ -51,7 +51,7 @@ c4.metric("Total annual consumption", f"{clean['energy_kwh'].sum()/1000:,.0f} MW
 
 st.divider()
 
-# Actual vs Predicted ---
+# Actual vs Predicted
 st.subheader("Actual vs Predicted Consumption (test period)")
 fig = go.Figure()
 fig.add_trace(go.Scatter(x=preds["timestamp"], y=preds["energy_kwh"], name="Actual", line=dict(color="#2563eb")))
@@ -61,7 +61,7 @@ st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
 
-# What-If Scenario ---
+# What-If Scenario
 st.subheader("What-If Scenario: Adjust Parameters & See Forecast Impact")
 st.caption("Adjust the sliders below to see how changes in operating parameters affect the energy consumption forecast")
 
@@ -129,7 +129,7 @@ st.caption(f"Baseline actual consumption around this time: {clean['energy_kwh'].
 
 st.divider()
 
-# Feature importance + hourly pattern ---
+# Feature importance + hourly pattern
 col_a, col_b = st.columns(2)
 
 with col_a:
@@ -147,7 +147,7 @@ with col_b:
 
 st.divider()
 
-# Equipment breakdown & peak demand ---
+# Equipment breakdown & peak demand
 col_c, col_d = st.columns(2)
 
 with col_c:
@@ -169,7 +169,7 @@ with col_d:
 
 st.divider()
 
-# Wastage / anomaly alerts ---
+# Wastage / anomaly alerts
 st.subheader("Flagged Wastage Periods (idle equipment, disproportionate draw)")
 st.dataframe(
     wastage[["timestamp", "production_load_t", "equipment_utilization_pct", "energy_kwh"]]

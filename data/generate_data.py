@@ -3,11 +3,11 @@ Generates a synthetic hourly energy-consumption dataset for a steel plant utilit
 broken down by named equipment (needed for equipment-level ranking, peak-demand
 attribution, and process-optimization recommendations).
 
-Why synthetic: real SCADA/plant data isn't accessible outside SAIL's internal systems.
+Synthetic data stands in for plant meter data that was not available here.
 This generator encodes realistic relationships (production load, equipment run-hours,
 shift patterns, ambient temperature, and idle-loss noise) so the full pipeline
 (cleaning -> EDA -> forecasting -> optimization) can be built and demonstrated end-to-end.
-When real plant data becomes available (e.g. during the internship), swap this file's
+To use real plant data instead, swap this file's
 output for the real CSV — the rest of the pipeline (clean_features.py, train_model.py,
 dashboard/app.py) expects the same column schema and will work unchanged, as long as
 per-equipment kWh columns are named `<equipment>_kwh`.
@@ -26,7 +26,7 @@ hour = timestamps.hour.values
 dow = timestamps.dayofweek.values  # 0=Mon
 day_of_year = timestamps.dayofyear.values
 
-# --- Production load (tonnes/hr equivalent), with shift and weekday patterns ---
+# Production load (tonnes/hr equivalent), with shift and weekday patterns
 shift_factor = 0.85 + 0.3 * np.sin((hour - 6) / 24 * 2 * np.pi) ** 2
 weekday_factor = np.where(dow < 5, 1.0, 0.75)  # lower on Sat/Sun
 base_load = 100
@@ -36,20 +36,18 @@ production_load = (
 )
 production_load = np.clip(production_load, 20, None)
 
-# --- Equipment utilization (%) — correlated with production load ---
+# Equipment utilization (%) — correlated with production load
 equipment_utilization = np.clip(
     40 + 0.5 * production_load + np.random.normal(0, 5, n), 10, 100
 )
 
-# --- Ambient temperature (deg C) — seasonal, affects cooling/ventilation load ---
+# Ambient temperature (deg C) — seasonal, affects cooling/ventilation load
 ambient_temp = 25 + 10 * np.sin((day_of_year / 365) * 2 * np.pi - np.pi / 2) + np.random.normal(0, 1.5, n)
 
-# --- Equipment run-hours in this hour (0-1, fraction of hour actively running) ---
+# Equipment run-hours in this hour (0-1, fraction of hour actively running)
 equipment_run_frac = np.clip(equipment_utilization / 100 + np.random.normal(0, 0.05, n), 0, 1)
 
-# ============================================================
 # Per-equipment consumption breakdown
-# ============================================================
 # Furnace: dominant load, tracks production almost directly, always drawing base power
 furnace_kwh = 120 + 5.0 * production_load + np.random.normal(0, 8, n)
 

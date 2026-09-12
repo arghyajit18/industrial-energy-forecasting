@@ -67,7 +67,7 @@ FORECAST_FEATURES = _model_features(xgb_model, _from_metrics or FORECAST_FEATURE
 st.title("Energy Consumption Forecasting — Real Plant Data")
 st.caption("DAEWOO Steel Co., South Korea — 15-min interval, 2018 (UCI/Kaggle Steel Industry Energy Consumption dataset)")
 
-# KPI row ---
+# KPI row
 low_pf_pct = (clean["Lagging_Current_Power_Factor"] < 90).mean() * 100
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("Forecast MAPE", f"{metrics['primary_forecast_model']['xgboost']['MAPE_pct']}%")
@@ -81,7 +81,7 @@ st.info("Forecast uses only time-of-day/week and past-usage features (a genuine 
 
 st.divider()
 
-# Actual vs Forecast ---
+# Actual vs Forecast
 st.subheader("Actual vs Forecast (test period)")
 fig = go.Figure()
 fig.add_trace(go.Scatter(x=preds["timestamp"], y=preds["Usage_kWh"], name="Actual", line=dict(color="#2563eb")))
@@ -91,7 +91,7 @@ st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
 
-# What-If Scenario ---
+# What-If Scenario
 st.subheader("What-If Scenario: Adjust Parameters & See Forecast Impact")
 st.caption("Adjust the sliders below to see how changes in operating conditions affect the energy usage forecast")
 
@@ -168,7 +168,7 @@ st.caption(f"Baseline annual mean: {clean['Usage_kWh'].mean():.1f} kWh per 15-mi
 
 st.divider()
 
-# Feature importance + hourly pattern ---
+# Feature importance + hourly pattern
 col_a, col_b = st.columns(2)
 
 with col_a:
@@ -186,7 +186,7 @@ with col_b:
 
 st.divider()
 
-# Segment ranking & peak demand ---
+# Segment ranking & peak demand
 col_c, col_d = st.columns(2)
 
 with col_c:
@@ -207,7 +207,7 @@ with col_d:
 
 st.divider()
 
-# Power factor diagnostic ---
+# Power factor diagnostic
 st.subheader("Power Factor by Load Type")
 fig6 = px.box(clean, x="Load_Type", y="Lagging_Current_Power_Factor",
               category_orders={"Load_Type": ["Light_Load", "Medium_Load", "Maximum_Load"]})
@@ -217,7 +217,7 @@ st.plotly_chart(fig6, use_container_width=True)
 
 st.divider()
 
-# Peak table + recommendations ---
+# Peak table + recommendations
 st.subheader("Peak Demand Periods (latest)")
 st.dataframe(
     peaks[["timestamp", "Usage_kWh", "Load_Type", "Lagging_Current_Power_Factor"]]

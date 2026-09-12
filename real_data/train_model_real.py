@@ -23,7 +23,7 @@ from lightgbm import LGBMRegressor
 df = pd.read_csv("real_data/clean_steel_industry_data.csv", parse_dates=["timestamp"])
 df = df.sort_values("timestamp").reset_index(drop=True)
 
-# --- Richer features to match synthetic pipeline (computed here so no re-clean needed) ---
+# Richer features to match synthetic pipeline (computed here so no re-clean needed)
 if "minute" not in df.columns:
     if "NSM" in df.columns:
         df["minute"] = (df["NSM"] % 3600) // 60
@@ -114,7 +114,7 @@ def evaluate(features, label, tune=True):
     lgb_r2 = r2_score(y_test, lgb_pred)
 
     importance = pd.Series(xgb.feature_importances_, index=features).sort_values(ascending=False)
-    print(f"\n=== {label} ===")
+    print(f"\n{label}")
     print(f"Linear Regression: MAE={lr_mae:.2f} kWh, MAPE={lr_mape:.1f}%, R2={lr_r2:.4f}")
     print(f"XGBoost:           MAE={xgb_mae:.2f} kWh, MAPE={xgb_mape:.1f}%, R2={xgb_r2:.4f}")
     print(f"LightGBM:          MAE={lgb_mae:.2f} kWh, MAPE={lgb_mape:.1f}%, R2={lgb_r2:.4f}")
@@ -127,22 +127,22 @@ def evaluate(features, label, tune=True):
             importance)
 
 
-# --- Primary: genuine forecast (time + lag features only) ---
+# Primary: genuine forecast (time + lag features only)
 (xgb_forecast, lgb_forecast, forecast_pred, lgb_forecast_pred, lr_forecast_pred,
  forecast_metrics, forecast_importance) = evaluate(
     FORECAST_FEATURES, "PRIMARY MODEL - genuine forecast (time + lag features only)", tune=True)
 
-# --- Secondary: same-timestep estimation (includes simultaneous electrical readings) ---
+# Secondary: same-timestep estimation (includes simultaneous electrical readings)
 (xgb_estimate, _, estimate_pred, _, _,
  estimate_metrics, estimate_importance) = evaluate(
     FORECAST_FEATURES + ESTIMATION_ONLY_FEATURES,
     "SECONDARY MODEL - same-timestep estimation (NOT a forecast)", tune=False)
 
-# --- SHAP values (primary XGBoost) ---
+# SHAP values (primary XGBoost)
 explainer = shap.TreeExplainer(xgb_forecast, feature_perturbation="tree_path_dependent")
 shap_values = explainer.shap_values(test[FORECAST_FEATURES])
 
-# --- Save forecast results ---
+# Save forecast results
 results = test[["timestamp", "Usage_kWh"]].copy()
 results["predicted_kwh"] = forecast_pred
 results["residual"] = results["Usage_kWh"] - results["predicted_kwh"]

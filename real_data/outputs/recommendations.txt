@@ -1,6 +1,5 @@
 
-OPTIMIZATION RECOMMENDATIONS — real data (auto-generated)
-====================================================================
+OPTIMIZATION RECOMMENDATIONS, real data summary
 SEGMENT RANKING (Load_Type — closest real proxy to equipment-level breakdown;
 this dataset has a single main meter with no sub-metering)
               total_kwh  share_pct

@@ -17,32 +17,32 @@ import numpy as np
 
 df = pd.read_csv("real_data/raw_steel_industry_data.csv")
 
-# --- Parse timestamp (format: DD/MM/YYYY HH:MM) ---
+# Parse timestamp (format: DD/MM/YYYY HH:MM)
 df["timestamp"] = pd.to_datetime(df["date"], format="%d/%m/%Y %H:%M")
 df = df.sort_values("timestamp").reset_index(drop=True)
 df = df.drop(columns=["date"])
 
-# --- Missing values (none found on inspection, but handle defensively) ---
+# Missing values (none found on inspection, but handle defensively)
 n_missing_before = df["Usage_kWh"].isna().sum()
 df["Usage_kWh"] = df["Usage_kWh"].ffill().bfill()
 
-# --- Outlier capping at 99.5th percentile (sensor spikes) ---
+# Outlier capping at 99.5th percentile (sensor spikes)
 cap = df["Usage_kWh"].quantile(0.995)
 n_capped = (df["Usage_kWh"] > cap).sum()
 df["Usage_kWh"] = df["Usage_kWh"].clip(upper=cap)
 
-# --- Time features ---
+# Time features
 df["hour"] = df["NSM"] // 3600
 df["dayofweek"] = df["timestamp"].dt.dayofweek
 df["is_weekend"] = (df["WeekStatus"] == "Weekend").astype(int)
 df["month"] = df["timestamp"].dt.month
 
-# --- Lag / rolling features (96 steps/day at 15-min resolution) ---
+# Lag / rolling features (96 steps/day at 15-min resolution)
 df["usage_lag_1step"] = df["Usage_kWh"].shift(1)          # 15 min ago
 df["usage_lag_1day"] = df["Usage_kWh"].shift(96)           # same time yesterday
 df["usage_roll_mean_1day"] = df["Usage_kWh"].rolling(96, min_periods=1).mean()
 
-# --- Power factor sanity: power factor is reported 0-100 in this dataset ---
+# Power factor sanity: power factor is reported 0-100 in this dataset
 # (Confirmed by inspecting value ranges — treated as %.)
 
 df = df.dropna().reset_index(drop=True)
