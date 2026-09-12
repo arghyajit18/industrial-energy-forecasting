@@ -7,7 +7,7 @@
 Steel plants pay for both total energy and peak demand plus power-factor penalties. This project forecasts short-term consumption and flags where money is lost.
 
 **Outcomes on real plant data (DAEWOO Steel, 2018, 34,944 readings at 15-min):**
-- Forecast error 5.22 kWh MAE with XGBoost using only time and lag features, chronological train/test split
+- Forecast error 4.36 kWh MAE with LightGBM (XGBoost 4.53) using only time and lag features, chronological train/test split
 - Power factor below the 90% penalty line 54.8% of the time, worst in Light_Load with median 66.2%
 - Peak demand concentrated at 9 AM on Thursdays, top 5% over 99.1 kWh
 
@@ -20,7 +20,7 @@ Steel plants pay for both total energy and peak demand plus power-factor penalti
 
 Real 15-minute data from DAEWOO Steel Co., Gwangyang, South Korea. Source: UCI ML Repository / Kaggle Steel Industry Energy Consumption dataset.
 
-Stages: cleaning and feature engineering, exploratory analysis, XGBoost forecasting with leakage avoidance, peak and power-factor optimization, Streamlit dashboard with what-if forecasting.
+Stages: cleaning and feature engineering (time, Fourier seasonal and lag/rolling features), exploratory analysis, GridSearch-tuned XGBoost forecasting with leakage avoidance plus a LightGBM comparison, SHAP and residual diagnostics, peak and power-factor optimization, Streamlit dashboard with what-if forecasting.
 
 Run:
 ```bash
@@ -33,14 +33,15 @@ streamlit run real_data/dashboard_real.py
 
 Results:
 
-| Model | MAE | MAPE |
-|---|---|---|
-| Linear Regression | 6.54 kWh | 55.8% |
-| XGBoost | 5.22 kWh | 34.9% |
+| Model | MAE | MAPE | R2 |
+|---|---|---|---|
+| Linear Regression | 6.65 kWh | 57.6% | 0.863 |
+| XGBoost (GridSearch) | 4.53 kWh | 25.4% | 0.923 |
+| LightGBM | 4.36 kWh | 21.5% | 0.924 |
 
-MAPE is elevated because usage drops near zero when idle. MAE is the decision metric here, about 19% of the mean near 27 kWh.
+MAPE is elevated because usage drops near zero when idle. MAE is the decision metric here, about 16% of the mean near 27 kWh.
 
-The previous 15-minute reading carries about 63% of importance, followed by same time yesterday, weekend flag, day of week and hour. This is expected for an autocorrelated load series.
+The previous 15-minute reading carries about 53% of importance, followed by weekend flag, hour, day of week and same time yesterday. This is expected for an autocorrelated load series.
 
 Load split:
 
@@ -86,4 +87,4 @@ Serving: Streamlit, Plotly, what-if sliders backed by serialized joblib models.
 
 ## Reproducibility
 
-Tested on Python 3.12 on Windows. Install with `pip install -r requirements.txt`. Real pipeline runs in under 2 minutes. Synthetic `train_model.py` includes GridSearch and can take 20 to 40 minutes. Data and models are versioned in the repo. Outputs regenerate under `outputs/` and `real_data/outputs/`.
+Tested on Python 3.12 on Windows. Install with `pip install -r requirements.txt`. Real EDA and optimization run in under a minute; real training includes a small GridSearch and takes several minutes. Synthetic `train_model.py` uses a larger GridSearch and can take 20 to 40 minutes. Data and models are versioned in the repo. Outputs regenerate under `outputs/` and `real_data/outputs/`.
