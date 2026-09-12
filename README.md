@@ -83,15 +83,5 @@ without reducing total output — directly addresses the "process
 optimization" deliverable, derived from the co-occurrence analysis above
 rather than asserted generically.
 
-## Resume bullet
-> Built an ML-based energy consumption forecasting pipeline (XGBoost, chronological
-> train/test split) achieving 1.2% MAPE on hourly plant-utility data; built an
-> equipment-level breakdown that attributed peak demand and idle-loss wastage
-> (~1% of annual consumption) to specific sub-systems, and an interactive Streamlit
-> dashboard for real-time monitoring and process-optimization recommendations.
-
-## Next steps for the real internship
-1. Replace synthetic data with actual plant SCADA/energy-meter exports.
-2. Re-run `clean_features.py` — it already handles missing values and outlier capping.
-3. Re-train (`train_model.py`) — expect XGBoost to pull ahead once real non-linearities show up.
-4. Validate wastage thresholds in `optimization.py` against maintenance team feedback.
+## Tech stack
+Python, pandas, scikit-learn, XGBoost, LightGBM, Streamlit, Plotly.
