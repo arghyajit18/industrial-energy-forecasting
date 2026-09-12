@@ -64,24 +64,11 @@ sub-systems —
 | Auxiliary/misc | 6.4% |
 | Ventilation/cooling | 5.2% |
 
-**Wastage detection**: 796 hours (9.1% of the year) flagged as idle-loss
-periods, concentrated around shift-change windows (6-7 AM, 5-7 PM) and
-weekends. Equipment-level attribution traces 402 of those 796 hours
-specifically to the **Auxiliary/misc** sub-system — making it the clear
-priority for auto-shutdown triggers, not a plant-wide guess. Estimated
-recoverable energy: ~84,000 kWh/year (~1.0% of total consumption).
+**Wastage I noticed**: around 796 hours had high power draw even when production was low. A lot of it showed up around shift changes (6-7 AM, 5-7 PM) and on weekends. When I broke it down, about 402 of those hours came from the Auxiliary/misc side, so that is where I would put auto-shutdown first. Back-of-the-envelope saving is close to 84,000 kWh a year, about 1% of the total.
 
-**Peak demand analysis**: top 5% of hours by total load (437 hours) are
-dominated entirely by the Furnace. Furnace and Compressor bank are
-simultaneously in their own top-25%-load state 17% of the time — 2.7x more
-often than independent duty cycles would predict — which is what drives peak
-demand spikes.
+**Peak demand**: I looked at the top 5% of hours by load (437 hours) and the Furnace was on top every single time. What stood out is the Furnace and Compressor bank both run hot together around 17% of the time, which is way more than you would expect by chance (about 2.7x). That overlap is what seems to push the peaks up.
 
-**Process optimization recommendation**: stagger compressor-bank
-startup/cycling away from furnace peak-load windows to flatten peak demand
-without reducing total output — directly addresses the "process
-optimization" deliverable, derived from the co-occurrence analysis above
-rather than asserted generically.
+**What I would try next**: shift compressor starts away from furnace peak windows. It should cut the peaks without hurting output, since the issue looks like timing rather than total load.
 
 ## Tech stack
 Python, pandas, scikit-learn, XGBoost, LightGBM, Streamlit, Plotly.
