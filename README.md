@@ -16,14 +16,9 @@ flags avoidable inefficiency.
   genuine finding (power factor deficiency) with a concrete recommendation.
   **Lead with this one** in interviews/resume — it's real data, not simulated.
 
-## Why synthetic data (this folder only)
-Real SCADA/energy-meter data isn't accessible outside SAIL's internal systems
-before the internship starts. `data/generate_data.py` generates one year of
-hourly data with realistic relationships (production load, equipment
-utilization, ambient temperature, shift/weekend patterns, and injected
-idle-loss + sensor-glitch noise) so the full pipeline can be built and
-demonstrated end-to-end. **See `real_data/README.md` for the real-data
-version, which supersedes this for actual results.**
+## About this project
+Industrial plants consume large amounts of electricity with highly variable load patterns. This project builds an end-to-end ML pipeline to forecast short-term energy consumption, explain key drivers, and surface actionable efficiency opportunities.
+It includes two complementary pipelines: a synthetic hourly dataset with full equipment-level breakdown for method demonstration, and a real 15-minute steel-plant dataset for validated results (see `real_data/README.md`). Both share the same stages — cleaning and feature engineering, exploratory analysis, XGBoost forecasting, wastage and peak-demand optimization, and an interactive Streamlit dashboard with what-if forecasting.
 
 ## Pipeline
 ```
