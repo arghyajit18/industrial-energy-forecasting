@@ -125,9 +125,17 @@ _feat_map = {
     "usage_lag_1day": adj_lag_1day, "usage_roll_mean_1day": adj_roll,
     "usage_roll_std_1day": adj_roll_std,
 }
-xgb_if_features = np.array([[_feat_map.get(c, 0) for c in FORECAST_FEATURES]])
-xgb_if_pred = float(xgb_model.predict(xgb_if_features)[0])
-lgb_if_pred = float(lgb_model.predict(xgb_if_features)[0]) if lgb_model is not None else None
+xgb_if_features = pd.DataFrame([[_feat_map.get(c, 0) for c in FORECAST_FEATURES]],
+                                columns=list(FORECAST_FEATURES))
+try:
+    xgb_if_pred = float(xgb_model.predict(xgb_if_features)[0])
+except Exception:
+    # Fallback for XGBoost version strictness on feature names
+    xgb_if_pred = float(xgb_model.predict(xgb_if_features.values)[0])
+try:
+    lgb_if_pred = float(lgb_model.predict(xgb_if_features)[0]) if lgb_model is not None else None
+except Exception:
+    lgb_if_pred = float(lgb_model.predict(xgb_if_features.values)[0]) if lgb_model is not None else None
 
 col_a, col_b = st.columns(2)
 with col_a:

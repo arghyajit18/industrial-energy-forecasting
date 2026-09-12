@@ -96,18 +96,28 @@ month_sin = np.sin(2 * np.pi * month_val / 12)
 month_cos = np.cos(2 * np.pi * month_val / 12)
 
 # XGBoost what-if prediction
-xgb_if_features = np.array([[adj_production_load, adj_equipment_util, adj_ambient_temp,
-                              0, hour_val, dow_val, 1 if dow_val >= 5 else 0, month_val,
-                              hour_sin, hour_cos, dow_sin, dow_cos, month_sin, month_cos,
-                              0, 0, 0]])  # lags set to 0 for single-hour forecast
-xgb_if_pred = float(xgb_model.predict(xgb_if_features)[0])
+MODEL_FEATURES = [
+    "production_load_t", "equipment_utilization_pct", "ambient_temp_c",
+    "equipment_run_frac", "hour", "dayofweek", "is_weekend", "month",
+    "hour_sin", "hour_cos", "dow_sin", "dow_cos", "month_sin", "month_cos",
+    "energy_lag_1h", "energy_lag_24h", "energy_roll_mean_24h",
+]
+xgb_if_df = pd.DataFrame([[
+    adj_production_load, adj_equipment_util, adj_ambient_temp,
+    0, hour_val, dow_val, 1 if dow_val >= 5 else 0, month_val,
+    hour_sin, hour_cos, dow_sin, dow_cos, month_sin, month_cos,
+    0, 0, 0,
+]], columns=MODEL_FEATURES)
+try:
+    xgb_if_pred = float(xgb_model.predict(xgb_if_df)[0])
+except Exception:
+    xgb_if_pred = float(xgb_model.predict(xgb_if_df.values)[0])
 
 # LightGBM what-if prediction
-lgb_if_features = np.array([[adj_production_load, adj_equipment_util, adj_ambient_temp,
-                              0, hour_val, dow_val, 1 if dow_val >= 5 else 0, month_val,
-                              hour_sin, hour_cos, dow_sin, dow_cos, month_sin, month_cos,
-                              0, 0, 0]])
-lgb_if_pred = float(lgb_model.predict(lgb_if_features)[0])
+try:
+    lgb_if_pred = float(lgb_model.predict(xgb_if_df)[0])
+except Exception:
+    lgb_if_pred = float(lgb_model.predict(xgb_if_df.values)[0])
 
 col_a, col_b = st.columns(2)
 with col_a:
