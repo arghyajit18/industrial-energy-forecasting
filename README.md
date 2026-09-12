@@ -5,8 +5,7 @@
 **Live demo:** https://industrial-energy-forecasting-r68qnqof8xkhnqm8e2y2m4.streamlit.app/
 
 A prototype ML pipeline that forecasts plant-utility energy consumption and
-flags avoidable inefficiency, built as a portfolio project modeled on SAIL's
-Project #12 (Durgapur Steel Plant).
+flags avoidable inefficiency.
 
 **Two versions in this repo:**
 - `./` (this folder) — synthetic data, full equipment-level breakdown (4 named
