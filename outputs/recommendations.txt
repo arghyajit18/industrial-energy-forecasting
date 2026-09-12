@@ -1,0 +1,35 @@
+
+OPTIMIZATION RECOMMENDATIONS (auto-generated from flagged periods)
+====================================================================
+EQUIPMENT RANKING (major energy-consuming equipment)
+                     total_kwh  share_pct
+Furnace              5060262.0       62.5
+Compressor bank      2088998.0       25.8
+Auxiliary/misc        519746.0        6.4
+Ventilation/cooling   423290.0        5.2
+-> Furnace is the single largest consumer (62.5% of total)
+   and the natural first target for any efficiency investment.
+
+1. Load balancing: 6:00 hour shows the highest concentration
+   of idle-loss events — audit equipment left running during this hour when
+   production load is low. Equipment-level analysis attributes 396/782
+   of these flagged hours to Auxiliary/misc, making it the priority for
+   auto-shutdown/standby triggers (see recommendation 4).
+
+2. Equipment scheduling: Weekday Sat
+   shows the most wastage hours — cross-check shift handover / maintenance-window
+   timing against equipment shutdown procedures.
+
+3. Process optimization: Furnace and Compressor bank are simultaneously in their
+   own top-25%-load state 17.0% of hours — 2.7x more
+   often than if their duty cycles were independent. This overlap is what drives peak
+   demand (Furnace dominates 434/434
+   flagged peak hours). Staggering compressor bank startup/cycling away from furnace
+   peak-load windows would flatten peak demand without changing total output.
+
+4. Estimated recoverable energy: ~82,576 kWh/year
+   (1.0% of total consumption) if idle equipment is shut down
+   during low-load periods instead of left running.
+
+5. Recommended action: install auto-shutdown/standby triggers on Auxiliary/misc
+   whose utilization drops below 30% for more than 2 consecutive hours.

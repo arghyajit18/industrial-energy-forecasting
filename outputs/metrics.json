@@ -1,0 +1,27 @@
+{
+  "baseline_linear_regression": {
+    "MAE_kWh": 15.78,
+    "MAPE_pct": 1.71,
+    "R2": 0.9555
+  },
+  "xgboost (grid-tuned)": {
+    "MAE_kWh": 10.53,
+    "MAPE_pct": 1.15,
+    "R2": 0.9763
+  },
+  "lightgbm": {
+    "MAE_kWh": 10.89,
+    "MAPE_pct": 1.19,
+    "R2": 0.9751
+  },
+  "improvement_over_baseline_pct": 33.2,
+  "test_set_size_hours": 1733,
+  "train_set_size_hours": 6931,
+  "grid_search_best_params": {
+    "colsample_bytree": 1.0,
+    "learning_rate": 0.05,
+    "max_depth": 3,
+    "n_estimators": 200,
+    "subsample": 0.7
+  }
+}

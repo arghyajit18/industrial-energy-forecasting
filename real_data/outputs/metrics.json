@@ -1,0 +1,25 @@
+{
+  "primary_forecast_model": {
+    "linear_regression": {
+      "MAE_kWh": 6.54,
+      "MAPE_pct": 55.8
+    },
+    "xgboost": {
+      "MAE_kWh": 5.22,
+      "MAPE_pct": 34.9
+    }
+  },
+  "secondary_estimation_model_not_a_forecast": {
+    "linear_regression": {
+      "MAE_kWh": 4.7,
+      "MAPE_pct": 61.6
+    },
+    "xgboost": {
+      "MAE_kWh": 1.05,
+      "MAPE_pct": 9.5
+    }
+  },
+  "train_set_size_rows": 27955,
+  "test_set_size_rows": 6989,
+  "note": "Primary model uses only time+lag features (genuine forecast). Secondary model uses simultaneous electrical readings for comparison only and should not be presented as a forecast."
+}

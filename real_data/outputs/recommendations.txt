@@ -1,0 +1,33 @@
+
+OPTIMIZATION RECOMMENDATIONS — real data (auto-generated)
+====================================================================
+SEGMENT RANKING (Load_Type — closest real proxy to equipment-level breakdown;
+this dataset has a single main meter with no sub-metering)
+              total_kwh  share_pct
+Load_Type                         
+Maximum_Load   430399.0       44.9
+Medium_Load    372225.0       38.9
+Light_Load     155454.0       16.2
+-> Maximum_Load accounts for 44.9% of annual consumption.
+
+1. Power factor correction (highest-value, most concrete recommendation from
+   real data): lagging power factor drops to a median of 66.2%
+   during Light_Load periods — well below the 90% threshold
+   most electricity boards use for penalty billing. The plant spends
+   54.8% of all 15-min intervals below 90% PF.
+   Recommended action: size and install automatic power-factor-correction
+   capacitor banks, switched in specifically during Light_Load periods
+   (a static/fixed bank sized for Maximum_Load would over-compensate and
+   cause leading-PF penalties at Light_Load — an automatic switched bank
+   avoids this).
+
+2. Peak demand timing: peak-demand periods concentrate around
+   9:00 and on Thus.
+   If the plant is on a demand-based tariff, shifting non-critical load away
+   from this window reduces the peak demand charge component of the bill,
+   independent of total energy consumed.
+
+3. Load-type-based scheduling: since Maximum_Load periods dominate
+   annual consumption (44.9%), even small
+   percentage efficiency gains during these periods have outsized impact
+   compared to the same gain during Light_Load periods.

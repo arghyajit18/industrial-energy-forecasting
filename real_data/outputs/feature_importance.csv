@@ -1,0 +1,8 @@
+,importance
+usage_lag_1step,0.6353217
+usage_lag_1day,0.09511889
+is_weekend,0.07819243
+dayofweek,0.07732873
+hour,0.055477962
+usage_roll_mean_1day,0.043074913
+month,0.015485382
