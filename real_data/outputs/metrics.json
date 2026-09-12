@@ -1,24 +1,73 @@
 {
   "primary_forecast_model": {
     "linear_regression": {
-      "MAE_kWh": 6.54,
-      "MAPE_pct": 55.8
+      "MAE_kWh": 6.65,
+      "MAPE_pct": 57.6,
+      "R2": 0.863
     },
     "xgboost": {
-      "MAE_kWh": 5.22,
-      "MAPE_pct": 34.9
+      "MAE_kWh": 4.53,
+      "MAPE_pct": 25.4,
+      "R2": 0.9225
+    },
+    "lightgbm": {
+      "MAE_kWh": 4.36,
+      "MAPE_pct": 21.5,
+      "R2": 0.9237
+    },
+    "grid_search_best_params": {
+      "colsample_bytree": 0.8,
+      "learning_rate": 0.05,
+      "max_depth": 5,
+      "n_estimators": 200,
+      "subsample": 0.8
     }
   },
   "secondary_estimation_model_not_a_forecast": {
     "linear_regression": {
-      "MAE_kWh": 4.7,
-      "MAPE_pct": 61.6
+      "MAE_kWh": 4.46,
+      "MAPE_pct": 49.6,
+      "R2": 0.9589
     },
     "xgboost": {
-      "MAE_kWh": 1.05,
-      "MAPE_pct": 9.5
+      "MAE_kWh": 1.06,
+      "MAPE_pct": 10.8,
+      "R2": 0.997
+    },
+    "lightgbm": {
+      "MAE_kWh": 0.85,
+      "MAPE_pct": 6.7,
+      "R2": 0.9977
+    },
+    "grid_search_best_params": {
+      "n_estimators": 300,
+      "max_depth": 5,
+      "learning_rate": 0.05,
+      "subsample": 0.8,
+      "colsample_bytree": 0.8
     }
   },
+  "improvement_over_baseline_pct": 31.9,
+  "forecast_features": [
+    "hour",
+    "minute",
+    "dayofweek",
+    "is_weekend",
+    "is_weekday",
+    "month",
+    "day",
+    "year",
+    "hour_sin",
+    "hour_cos",
+    "dow_sin",
+    "dow_cos",
+    "month_sin",
+    "month_cos",
+    "usage_lag_1step",
+    "usage_lag_1day",
+    "usage_roll_mean_1day",
+    "usage_roll_std_1day"
+  ],
   "train_set_size_rows": 27955,
   "test_set_size_rows": 6989,
   "note": "Primary model uses only time+lag features (genuine forecast). Secondary model uses simultaneous electrical readings for comparison only and should not be presented as a forecast."

@@ -1,0 +1,20 @@
+{
+  "linear_regression": {
+    "mean_residual": -0.55374508177565,
+    "std_residual": 11.56994125173385,
+    "min_residual": -69.25139671862048,
+    "max_residual": 95.84022499659093
+  },
+  "xgboost": {
+    "mean_residual": 0.13072108521970116,
+    "std_residual": 8.70920129192989,
+    "min_residual": -61.35380599975586,
+    "max_residual": 68.3434994506836
+  },
+  "lightgbm": {
+    "mean_residual": 0.2587887157096151,
+    "std_residual": 8.637617372125163,
+    "min_residual": -59.08229363115632,
+    "max_residual": 68.65672546057122
+  }
+}

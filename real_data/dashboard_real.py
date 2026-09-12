@@ -34,11 +34,17 @@ clean, preds, importance, metrics, seg_ranking, peaks = load_data()
 
 @st.cache_resource
 def load_models():
-    import joblib
+    import joblib, os
     xgb = joblib.load(f"{OUT_DIR}/xgb_forecast_model.joblib")
-    return xgb
+    lgb_path = f"{OUT_DIR}/lgb_forecast_model.joblib"
+    lgb = joblib.load(lgb_path) if os.path.exists(lgb_path) else None
+    return xgb, lgb
 
-xgb_model = load_models()
+xgb_model, lgb_model = load_models()
+try:
+    FORECAST_FEATURES = list(metrics.get("forecast_features", FORECAST_FEATURES))
+except Exception:
+    pass
 
 st.title("Energy Consumption Forecasting — Real Plant Data")
 st.caption("DAEWOO Steel Co., South Korea — 15-min interval, 2018 (UCI/Kaggle Steel Industry Energy Consumption dataset)")
@@ -95,17 +101,42 @@ with col3:
                          min_value=float(clean["usage_roll_mean_1day"].min()),
                          max_value=float(clean["usage_roll_mean_1day"].quantile(0.99)),
                          value=float(clean["usage_roll_mean_1day"].median()))
+    roll_std_default = float(clean["Usage_kWh"].rolling(96, min_periods=1).std().fillna(0).median())
+    adj_roll_std = st.slider("Rolling 24h std (kWh)", min_value=0.0,
+                             max_value=float(clean["Usage_kWh"].std() * 2),
+                             value=roll_std_default)
 
 adj_is_weekend = 1 if adj_dow >= 5 else 0
-xgb_if_features = np.array([[adj_hour, adj_dow, adj_is_weekend, adj_month,
-                             adj_lag_1step, adj_lag_1day, adj_roll]])
+adj_is_weekday = 1 if adj_dow < 5 else 0
+adj_minute, adj_day, adj_year = 0, 15, 2018
+adj_hour_sin = float(np.sin(2 * np.pi * (adj_hour + adj_minute / 60) / 24))
+adj_hour_cos = float(np.cos(2 * np.pi * (adj_hour + adj_minute / 60) / 24))
+adj_dow_sin = float(np.sin(2 * np.pi * adj_dow / 7))
+adj_dow_cos = float(np.cos(2 * np.pi * adj_dow / 7))
+adj_month_sin = float(np.sin(2 * np.pi * adj_month / 12))
+adj_month_cos = float(np.cos(2 * np.pi * adj_month / 12))
+
+_feat_map = {
+    "hour": adj_hour, "minute": adj_minute, "dayofweek": adj_dow,
+    "is_weekend": adj_is_weekend, "is_weekday": adj_is_weekday, "month": adj_month,
+    "day": adj_day, "year": adj_year, "hour_sin": adj_hour_sin, "hour_cos": adj_hour_cos,
+    "dow_sin": adj_dow_sin, "dow_cos": adj_dow_cos, "month_sin": adj_month_sin,
+    "month_cos": adj_month_cos, "usage_lag_1step": adj_lag_1step,
+    "usage_lag_1day": adj_lag_1day, "usage_roll_mean_1day": adj_roll,
+    "usage_roll_std_1day": adj_roll_std,
+}
+xgb_if_features = np.array([[_feat_map.get(c, 0) for c in FORECAST_FEATURES]])
 xgb_if_pred = float(xgb_model.predict(xgb_if_features)[0])
+lgb_if_pred = float(lgb_model.predict(xgb_if_features)[0]) if lgb_model is not None else None
 
 col_a, col_b = st.columns(2)
 with col_a:
     st.metric("XGBoost Forecast (kWh per 15-min)", f"{xgb_if_pred:.1f}")
 with col_b:
-    st.metric("Recent actual (last 96 intervals avg)", f"{clean['Usage_kWh'].tail(96).mean():.1f} kWh")
+    if lgb_if_pred is not None:
+        st.metric("LightGBM Forecast (kWh per 15-min)", f"{lgb_if_pred:.1f}")
+    else:
+        st.metric("Recent actual (last 96 intervals avg)", f"{clean['Usage_kWh'].tail(96).mean():.1f} kWh")
 
 st.caption(f"Baseline annual mean: {clean['Usage_kWh'].mean():.1f} kWh per 15-min interval")
 
